@@ -20,7 +20,7 @@ app.post("/todos", (req,res) => {
     });
     todo.save()
         .then(doc => {
-            res.send("Document added"); 
+            res.send(doc); 
         })
         .catch(err => {
             res.status(400).send(err)
@@ -30,3 +30,7 @@ app.post("/todos", (req,res) => {
 app.listen(3000,() => {
     console.log("Server is running ...");
 });
+
+module.exports = {
+    app
+}
