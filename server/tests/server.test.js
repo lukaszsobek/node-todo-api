@@ -4,6 +4,31 @@ const request = require("supertest");
 const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
 
+const sampleTodos = [
+    { text: "Sample 1" },
+    { text: "Sample 2" }
+];
+
+describe("Getting todos", () => {
+
+    beforeEach(done => {
+        Todo.deleteMany()
+            .then(() => Todo.insertMany(sampleTodos))
+            .then(() => done());
+    });
+
+    it("/todos route gets all todos", done => {
+        request(app)
+            .get("/todos")
+            .expect(200)
+            .expect(res => {
+                expect(res.body.error).toBe(null);
+                expect(res.body.data.length).toBe(2);
+            })
+            .end(done);
+    });
+});
+
 describe("Posting todos", () => {
     it("invalid data doesn't create new todo",done => {
         let text = "    ";
