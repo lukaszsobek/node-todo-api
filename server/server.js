@@ -13,6 +13,23 @@ app.get("/", (req,res) => {
     res.send("Hello");
 });
 
+app.get("/todos", (req,res) => {
+    Todo.find()
+        .then(todos => {
+            res.send({
+                data: todos,
+                error: null
+            });
+        })
+        .catch(err => {
+            res.status(400).send({
+                data: {},
+                error: err
+            });   
+        });
+    
+});
+
 app.post("/todos", (req,res) => {
     // res.send(req.body);
     const todo = new Todo({
