@@ -44,6 +44,10 @@ app.post("/todos", (req,res) => {
         });
 });
 
+app.get("/todo/:id", (req,res) => {
+    res.send(req.params)
+})
+
 app.listen(3000,() => {
     console.log("Server is running ...");
 });
