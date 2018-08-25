@@ -36,8 +36,8 @@ describe("Getting todos", () => {
             .expect(200)
             .expect(res => {
                 // ↓ comparing ObjectId with a string for convenience sake
-                expect(res.body.todo._id).toEqual(_id); 
-                expect(res.body.todo.text).toBe(sampleTodos[0].text);
+                expect(res.body.data._id).toBe(_id); 
+                expect(res.body.data.text).toBe(sampleTodos[0].text);
             })
             .end(done);
     });
