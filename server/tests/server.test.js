@@ -72,7 +72,7 @@ describe("Deleting todos", () => {
         request(app)
             .delete(`/todos/${id}`)
             .expect(404)
-            .end(done)
+            .end(done);
     });
 
     it("Throws error on non-existing id", done => {
@@ -94,7 +94,18 @@ describe("Deleting todos", () => {
                 expect(res.body.data._id).toEqual(id);
                 expect(res.body.data.text).toBe(sampleTodos[0].text);
             })
-            .end(done);
+            .end((err) => {
+                if(err) {
+                    return done(err);
+                }
+
+                Todo.findById(id)
+                    .then(item => {
+                        if(!item) {
+                            return done();
+                        }
+                    }).catch(err => done(err));
+            });
     })
 });
 
