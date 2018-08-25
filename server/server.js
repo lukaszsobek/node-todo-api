@@ -46,7 +46,7 @@ app.post("/todos", (req,res) => {
         });
 });
 
-app.get("/todo/:id", (req, res) => {
+app.get("/todos/:id", (req, res) => {
     const todoID = req.params.id || "";
     if(!ObjectID.isValid(todoID)) {
         return res.status(404).send();

@@ -1,12 +1,13 @@
 const expect = require("expect");
 const request = require("supertest");
+const { ObjectID } = require("mongodb");
 
 const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
 
 const sampleTodos = [
-    { text: "Sample 1" },
-    { text: "Sample 2" }
+    { _id: new ObjectID() , text: "Sample 1" },
+    { _id: new ObjectID(), text: "Sample 2" }
 ];
 
 describe("Getting todos", () => {
@@ -27,9 +28,23 @@ describe("Getting todos", () => {
             })
             .end(done);
     });
+
+    it("todos/:id gets a specific id",done => {
+        const _id = sampleTodos[0]._id.toHexString();
+        request(app)
+            .get(`/todos/${_id}`)
+            .expect(200)
+            .expect(res => {
+                // ↓ comparing ObjectId with a string for convenience sake
+                expect(res.body.todo._id).toEqual(_id); 
+                expect(res.body.todo.text).toBe(sampleTodos[0].text);
+            })
+            .end(done)
+    })
 });
 
 describe("Posting todos", () => {
+
     it("invalid data doesn't create new todo",done => {
         let text = "    ";
         request(app)
@@ -38,6 +53,9 @@ describe("Posting todos", () => {
             .expect(400)
             .end(done);
     });
+
+
+
     // xit("creates a new todo", done => {
     //     const text = "Testing the todo creation";
     //     request(app)
