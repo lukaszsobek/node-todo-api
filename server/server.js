@@ -47,6 +47,36 @@ app.post("/todos", (req,res) => {
         });
 });
 
+app.delete("/todos/:id", (req, res) => {
+    const todoID = req.params.id || "";
+
+    if(!ObjectID.isValid(todoID)) {
+        return res.status(404).send({
+            data: [],
+            error: "Todo not found"
+        });
+    }
+
+    Todo.findByIdAndRemove(todoID)
+        .then(todo => {
+
+            if (!todo) {
+                res.status(404).send({
+                    data: {},
+                    error: "Todo not found"
+                });
+            }
+
+            res.send({
+            data: todo,
+            error: null
+        })}
+        ).catch(err => res.status(400).send({
+            data: {},
+            error: err
+        }))
+});
+
 app.get("/todos/:id", (req, res) => {
     const todoID = req.params.id || "";
     if(!ObjectID.isValid(todoID)) {
