@@ -58,6 +58,46 @@ describe("Getting todos", () => {
     });
 });
 
+describe("Deleting todos", () => {
+
+    beforeEach(done => {
+        Todo.deleteMany()
+            .then(() => Todo.insertMany(sampleTodos))
+            .then(() => done());
+    });
+
+    it("Throws error on invalid id", done => {
+        const id = "test";
+        
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done)
+    });
+
+    it("Throws error on non-existing id", done => {
+        const id = new ObjectID().toHexString();
+
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    // delete existing todo
+    it("Deletes existing note", done => {
+        const id = sampleTodos[0]._id.toHexString();
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.data._id).toEqual(id);
+                expect(res.body.data.text).toBe(sampleTodos[0].text);
+            })
+            .end(done);
+    })
+});
+
 describe("Posting todos", () => {
 
     it("invalid data doesn't create new todo",done => {

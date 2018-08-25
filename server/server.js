@@ -13,7 +13,7 @@ const { User } = require("./models/userModel");
 
 
 app.get("/", (req,res) => {
-    res.send("Hello");
+    res.send("Hello, welcome to the Todo api");
 });
 
 app.get("/todos", (req,res) => {
@@ -34,16 +34,21 @@ app.get("/todos", (req,res) => {
 });
 
 app.post("/todos", (req,res) => {
-    // res.send(req.body);
     const todo = new Todo({
         text: req.body.text
     });
     todo.save()
         .then(doc => {
-            res.send(doc); 
+            res.send({
+                data: doc,
+                error: null
+            }); 
         })
         .catch(err => {
-            res.status(400).send(err)
+            res.status(400).send({
+                data: {},
+                error: err
+            });
         });
 });
 
@@ -52,7 +57,7 @@ app.delete("/todos/:id", (req, res) => {
 
     if(!ObjectID.isValid(todoID)) {
         return res.status(404).send({
-            data: [],
+            data: {},
             error: "Todo not found"
         });
     }
@@ -61,17 +66,18 @@ app.delete("/todos/:id", (req, res) => {
         .then(todo => {
 
             if (!todo) {
-                res.status(404).send({
+                return res.status(404).send({
                     data: {},
                     error: "Todo not found"
                 });
             }
 
             res.send({
-            data: todo,
-            error: null
-        })}
-        ).catch(err => res.status(400).send({
+                data: todo,
+                error: null
+            });
+
+        }).catch(err => res.status(404).send({
             data: {},
             error: err
         }))
@@ -84,16 +90,23 @@ app.get("/todos/:id", (req, res) => {
     }
     Todo.findById(todoID).then(todo => {
         if(!todo) {
-            return res.status(404).send();
+            return res.status(404).send({
+                data: {},
+                error: "Todo not found"
+            });
         }
-        res.send({todo})
-    }).catch(e => console.log(e));
+        res.send({ 
+            data: todo,
+            error: null
+        });
+    }).catch(e => res.send({
+        data: {},
+        error: e
+    }));
 })
 
-app.listen(port,() => {
+app.listen(port, () => {
     console.log(`Server is running on port ${port}...`);
 });
 
-module.exports = {
-    app
-}
+module.exports = { app }
