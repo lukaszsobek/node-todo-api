@@ -1,12 +1,12 @@
 {
     "extends": "eslint:recommended",
+    "env": {
+        "mocha": true,
+        "node": true
+    },
     "globals": {
         "module": false,
-        "require": false,
-        "it": false,
-        "done": false,
-        "beforeEach": false,
-        "describe": false
+        "require": false
     },
     "parserOptions": {
         "ecmaVersion": 6
