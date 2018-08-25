@@ -39,8 +39,23 @@ describe("Getting todos", () => {
                 expect(res.body.todo._id).toEqual(_id); 
                 expect(res.body.todo.text).toBe(sampleTodos[0].text);
             })
-            .end(done)
-    })
+            .end(done);
+    });
+
+    it("non-existant :id returns an error status", done => {
+        const _id = new ObjectID().toHexString();      
+        request(app)
+            .get(`/todos/${_id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it("invalid :id returns an error status", done => {
+        request(app)
+            .get("/todos/sample")
+            .expect(404)
+            .end(done);
+    });
 });
 
 describe("Posting todos", () => {

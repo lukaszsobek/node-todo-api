@@ -2,7 +2,11 @@
     "extends": "eslint:recommended",
     "globals": {
         "module": false,
-        "require": false
+        "require": false,
+        "it": false,
+        "done": false,
+        "beforeEach": false,
+        "describe": false
     },
     "parserOptions": {
         "ecmaVersion": 6
