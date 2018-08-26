@@ -6,8 +6,8 @@ const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
 
 const sampleTodos = [
-    { _id: new ObjectID() , text: "Sample 1" },
-    { _id: new ObjectID(), text: "Sample 2" }
+    { _id: new ObjectID() , text: "Sample 1", isCompleted: false },
+    { _id: new ObjectID(), text: "Sample 2", isCompleted: true, completedDate: 123456  }
 ];
 
 describe("Getting todos", () => {
@@ -84,7 +84,6 @@ describe("Deleting todos", () => {
             .end(done);
     });
 
-    // delete existing todo
     it("Deletes existing note", done => {
         const id = sampleTodos[0]._id.toHexString();
         request(app)
@@ -106,6 +105,62 @@ describe("Deleting todos", () => {
                         }
                     }).catch(err => done(err));
             });
+    });
+});
+
+describe("Patching a todo", () => {
+    beforeEach(done => {
+        Todo.deleteMany()
+            .then(() => Todo.insertMany(sampleTodos))
+            .then(() => done());
+    });
+
+    it("Throws error on invalid id", done => {
+        const id = "test";
+        
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it("Throws error on non-existing id", done => {
+        const id = new ObjectID().toHexString();
+
+        request(app)
+            .delete(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it("Patches existing note", done => {
+        const id = sampleTodos[0]._id.toHexString();
+        const isCompleted = true;
+        const text = "New text from test"
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ isCompleted, text })
+            .expect(200)
+            .expect(({ body }) => {
+                expect(body.data.isCompleted).toBe(isCompleted);
+                expect(body.data.completedDate).not.toBe(0);
+                expect(body.data.text).toBe(text);
+            })
+            .end(done);
+    });
+
+    it("Removes completedDate when !isCompleted", done => {
+        const id = sampleTodos[0]._id.toHexString();
+        const isCompleted = false;
+        request(app)
+            .patch(`/todos/${id}`)
+            .send({ isCompleted })
+            .expect(200)
+            .expect(({ body }) => {
+                expect(body.data.isCompleted).toBe(isCompleted);
+                expect(body.data.completedDate).toBe(0);
+            })
+            .end(done);
     })
 });
 

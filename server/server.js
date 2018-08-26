@@ -120,23 +120,6 @@ app.patch("/todos/:id", (req, res) => {
             data: {},
             error: err
         }));
-
-
-    // Todo.findById(todoID).then(todo => {
-    //     if(!todo) {
-    //         return res.status(404).send({
-    //             data: {},
-    //             error: "Todo not found"
-    //         });
-    //     }
-    //     res.send({ 
-    //         data: todo,
-    //         error: null
-    //     });
-    // }).catch(e => res.send({
-    //     data: {},
-    //     error: e
-    // }));
 });
 
 app.get("/todos/:id", (req, res) => {
