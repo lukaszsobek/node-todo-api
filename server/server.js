@@ -4,10 +4,10 @@ const { ObjectID } = require("mongodb");
 const _ = require("lodash");
 
 const app = express();
-const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 
+require("./config/config");
 require("./db/mongoose");
 
 const { Todo } = require("./models/todoModel");
@@ -144,8 +144,8 @@ app.get("/todos/:id", (req, res) => {
     }));
 })
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}...`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server is running on port ${process.env.PORT}...`);
 });
 
 module.exports = { app }
