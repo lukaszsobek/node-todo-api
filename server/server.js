@@ -86,7 +86,57 @@ app.delete("/todos/:id", (req, res) => {
 });
 
 app.patch("/todos/:id", (req, res) => {
-    res.send("patch")
+    const todoID = req.params.id || "";
+    if(!ObjectID.isValid(todoID)) {
+        return res.status(404).send();
+    }
+
+    const changes = _.pick(req.body, ["text", "isCompleted"]);
+    const updatedTodo = {
+        isCompleted: !!changes.isCompleted
+    }
+    if(changes.text) {
+        updatedTodo.text = changes.text
+    }
+    updatedTodo.completedDate = updatedTodo.isCompleted
+        ? Date.now()
+        : 0;
+    
+    Todo.findByIdAndUpdate(todoID, {$set: updatedTodo}, {new: true})
+        .then(todo => {
+            if(!todo) {
+                return res.status(404).send({
+                    data: {},
+                    error: "Todo not found"
+                });
+            }  
+
+            res.send({
+                data: todo,
+                error: null
+            });
+
+        }).catch(err => res.status(400).send({
+            data: {},
+            error: err
+        }));
+
+
+    // Todo.findById(todoID).then(todo => {
+    //     if(!todo) {
+    //         return res.status(404).send({
+    //             data: {},
+    //             error: "Todo not found"
+    //         });
+    //     }
+    //     res.send({ 
+    //         data: todo,
+    //         error: null
+    //     });
+    // }).catch(e => res.send({
+    //     data: {},
+    //     error: e
+    // }));
 });
 
 app.get("/todos/:id", (req, res) => {
