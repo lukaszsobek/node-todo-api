@@ -1,6 +1,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { ObjectID } = require("mongodb");
+const _ = require("lodash");
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -81,6 +83,10 @@ app.delete("/todos/:id", (req, res) => {
             data: {},
             error: err
         }))
+});
+
+app.patch("/todos/:id", (req, res) => {
+    res.send("patch")
 });
 
 app.get("/todos/:id", (req, res) => {
