@@ -142,7 +142,18 @@ app.get("/todos/:id", (req, res) => {
         data: {},
         error: e
     }));
-})
+});
+
+
+app.post("/users",(req,res) => {
+    const user = new User({
+        email: req.body.email,
+        password: req.body.password
+    });
+    user.save()
+        .then(user => res.send({ data: user, error: null }))
+        .catch(err => res.status(400).send({ data: {}, error: err }));
+});
 
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}...`);
