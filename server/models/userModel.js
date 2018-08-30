@@ -30,6 +30,14 @@ const UserSchema = new mongoose.Schema({
     }]
 });
 
+// overrides the basic toJSON to only return certain values
+UserSchema.methods.toJSON = function () {
+    const user = this;
+    const { _id, email } = user.toObject();
+    return { _id, email };
+}
+
+
 // called on instance of user, so this === user
 UserSchema.methods.generateAuthToken = function () {
     const user = this; 
