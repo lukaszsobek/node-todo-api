@@ -146,12 +146,16 @@ app.get("/todos/:id", (req, res) => {
 
 
 app.post("/users",(req,res) => {
+
     const user = new User({
         email: req.body.email,
         password: req.body.password
     });
     user.save()
-        .then(user => res.send({ data: user, error: null }))
+        .then(() => {
+            return user.generateAuthToken()
+        })
+        .then(token => res.header("x-auth",token).send({ data: user, error: null }))
         .catch(err => res.status(400).send({ data: {}, error: err }));
 });
 
