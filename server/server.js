@@ -159,6 +159,19 @@ app.post("/users",(req,res) => {
         .catch(err => res.status(400).send({ data: {}, error: err }));
 });
 
+app.get("/users/me", (req,res) => {
+    const token = req.header("x-auth");
+    User.findByToken(token)
+        .then(authUser => {
+            if(!authUser) {
+                return Promise.reject("No user found");
+            }
+
+            res.send({ data: authUser, err: null })
+        })
+        .catch(err => res.status(401).send({ data: {}, error: err }));
+});
+
 app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}...`);
 });

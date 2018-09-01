@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
 
+const salt = "jkljkljlkjkl";
+
 const UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -37,12 +39,10 @@ UserSchema.methods.toJSON = function () {
     return { _id, email };
 }
 
-
 // called on instance of user, so this === user
 UserSchema.methods.generateAuthToken = function () {
     const user = this; 
     const access = "auth";
-    const salt = "jkljkljlkjkl";
     const token = jwt.sign({
         _id: user._id.toHexString(),
         access
@@ -52,6 +52,22 @@ UserSchema.methods.generateAuthToken = function () {
     user.tokens.push({ access, token });
   
     return user.save().then(() => token);
+}
+
+// finds user by token
+UserSchema.statics.findByToken = function(token) {
+    const User = this;
+    const decodedUser = jwt.verify(token, salt, (err, decoded) => {
+        if (err) {
+            return Promise.reject("Token error");
+        }
+        return User.findOne({
+            _id: decoded._id,
+            "tokens.token": token,
+            "tokens.access": "auth"
+        })
+    });
+    return decodedUser;
 }
 
 const User = mongoose.model("UserModel", UserSchema);
