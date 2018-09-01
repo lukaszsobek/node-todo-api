@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { ObjectID } = require("mongodb");
 const _ = require("lodash");
+const { authenticateUser } = require("./middleware/authenticateUser");
 
 const app = express();
 
@@ -12,7 +13,6 @@ require("./db/mongoose");
 
 const { Todo } = require("./models/todoModel");
 const { User } = require("./models/userModel");
-
 
 app.get("/", (req,res) => {
     res.send("Hello, welcome to the Todo api");
@@ -159,17 +159,8 @@ app.post("/users",(req,res) => {
         .catch(err => res.status(400).send({ data: {}, error: err }));
 });
 
-app.get("/users/me", (req,res) => {
-    const token = req.header("x-auth");
-    User.findByToken(token)
-        .then(authUser => {
-            if(!authUser) {
-                return Promise.reject("No user found");
-            }
-
-            res.send({ data: authUser, err: null })
-        })
-        .catch(err => res.status(401).send({ data: {}, error: err }));
+app.get("/users/me", authenticateUser, (req,res) => {
+    res.send({ data: req.user, error: null });
 });
 
 app.listen(process.env.PORT, () => {
