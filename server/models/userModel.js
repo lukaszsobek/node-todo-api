@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 const salt = "jkljkljlkjkl";
 
@@ -69,6 +70,26 @@ UserSchema.statics.findByToken = function(token) {
     });
     return decodedUser;
 }
+
+UserSchema.pre("save", function(next) {
+    const user = this;
+    const shouldHashPassword = user.isModified("password");
+
+    if(shouldHashPassword) {
+        bcrypt.genSalt(10,(err, salt) => {
+            if(err) return err;
+
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                if(err) return err;
+                
+                user.password = hash;
+                next();
+            });
+        });
+     } else {
+         next();
+     }
+});
 
 const User = mongoose.model("UserModel", UserSchema);
 
