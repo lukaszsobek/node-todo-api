@@ -93,4 +93,4 @@ UserSchema.pre("save", function(next) {
 
 const User = mongoose.model("UserModel", UserSchema);
 
-module.exports = { User }
+module.exports = { User, salt }

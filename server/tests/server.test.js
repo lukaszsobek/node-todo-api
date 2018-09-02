@@ -4,9 +4,14 @@ const { ObjectID } = require("mongodb");
 
 const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
-const { sampleTodos, seedDatabase } = require("./seed");
 
-beforeEach(seedDatabase);
+const {
+    sampleTodos, seedTodoCollection,
+    sampleUsers, seedUserCollection
+} = require("./seed");
+
+beforeEach(seedUserCollection);
+beforeEach(seedTodoCollection);
 
 describe("Getting todos", () => {
     it("/todos route gets all todos", done => {
