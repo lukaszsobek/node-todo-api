@@ -79,7 +79,7 @@ describe("Deleting todos", () => {
             .delete(`/todos/${id}`)
             .expect(200)
             .expect(res => {
-                expect(res.body.data._id).toEqual(id);
+                expect(res.body.data._id).toBe(id);
                 expect(res.body.data.text).toBe(sampleTodos[0].text);
             })
             .end((err) => {
@@ -181,4 +181,31 @@ describe("Posting todos", () => {
     //             }).catch(done);
     //         });
     // });
+});
+
+describe("Getting user data from /users/me", () => {
+    it("works when authenticated", done => {
+        request(app)
+            .get("/users/me")
+            .set("x-auth", sampleUsers[0].tokens[0].token)
+            .expect(200)
+            .expect(res => {
+                const { _id, email } = sampleUsers[0];
+                expect(res.body.data._id).toBe(_id.toHexString());
+                expect(res.body.data.email).toBe(email)
+            })
+            .end(done);
+
+    });
+
+    it("fails when not authenticated", done => {
+        request(app)
+            .get("/users/me")
+            .expect(401)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null);
+            })
+            .end(done)
+
+    });
 });
