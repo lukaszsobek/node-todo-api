@@ -4,20 +4,11 @@ const { ObjectID } = require("mongodb");
 
 const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
+const { sampleTodos, seedDatabase } = require("./seed");
 
-const sampleTodos = [
-    { _id: new ObjectID() , text: "Sample 1", isCompleted: false },
-    { _id: new ObjectID(), text: "Sample 2", isCompleted: true, completedDate: 123456  }
-];
+beforeEach(seedDatabase);
 
 describe("Getting todos", () => {
-
-    beforeEach(done => {
-        Todo.deleteMany()
-            .then(() => Todo.insertMany(sampleTodos))
-            .then(() => done());
-    });
-
     it("/todos route gets all todos", done => {
         request(app)
             .get("/todos")
@@ -59,13 +50,6 @@ describe("Getting todos", () => {
 });
 
 describe("Deleting todos", () => {
-
-    beforeEach(done => {
-        Todo.deleteMany()
-            .then(() => Todo.insertMany(sampleTodos))
-            .then(() => done());
-    });
-
     it("Throws error on invalid id", done => {
         const id = "test";
         
@@ -109,12 +93,6 @@ describe("Deleting todos", () => {
 });
 
 describe("Patching a todo", () => {
-    beforeEach(done => {
-        Todo.deleteMany()
-            .then(() => Todo.insertMany(sampleTodos))
-            .then(() => done());
-    });
-
     it("Throws error on invalid id", done => {
         const id = "test";
         
