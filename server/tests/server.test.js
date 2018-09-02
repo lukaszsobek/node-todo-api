@@ -209,3 +209,69 @@ describe("Getting user data from /users/me", () => {
 
     });
 });
+
+describe("Creating users", () => {
+
+    const validEmail = "c@c.com";
+    const invalidEmail = "aaaa";
+    const duplicateEmail = "a@a.com"
+
+    const validPassword = "123456";
+    const invalidPassword = "123";
+
+    it("creates a new user", done => {
+        request(app)
+        .post("/users")
+        .send({ email: validEmail, password:  validPassword })
+        .expect(200)
+        .expect(res => {
+            expect(res.body.data.email).toBe(validEmail);
+            expect(res.body.error).toBe(null);
+        })
+        .end(done);
+    });
+
+    describe("fails when", () => {
+        it("email is invalid", done => {
+            request(app)
+                .post("/users")
+                .send({
+                    email: invalidEmail,
+                    password: validPassword
+                 })
+                .expect(400)
+                .expect(res => {
+                    expect(res.body.err).not.toBe(null);
+                })
+                .end(done);
+        });
+
+        it("email already exists", done => {
+            request(app)
+                .post("/users")
+                .send({
+                    email: duplicateEmail,
+                    password: validPassword
+                })
+                .expect(400)
+                .expect(res => {
+                    expect(res.body.err).not.toBe(null);
+                })
+                .end(done);
+        });
+
+        it("password is invalid (too short)", done => {
+            request(app)
+                .post("/users")
+                .send({
+                    email: validEmail,
+                    password: invalidPassword
+                })
+                .expect(400)
+                .expect(res => {
+                    expect(res.body.err).not.toBe(null);
+                })
+                .end(done);
+        });
+    });
+});
