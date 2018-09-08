@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { ObjectID } = require("mongodb");
-const bcrypt = require("bcryptjs");
 const _ = require("lodash");
 const { authenticateUser } = require("./middleware/authenticateUser");
 
@@ -167,11 +166,18 @@ app.post("/users/login", (req,res) => {
             user.generateAuthToken()
              .then(token => res.header("x-auth",token).send({ data: user, error: null }))
         })
-        .catch(err => res.status(400).send({ data: {}, error: "No such user" })); 
+        .catch(() => res.status(400).send({ data: {}, error: "No such user" })); 
 });
 
 app.get("/users/me", authenticateUser, (req,res) => {
     res.send({ data: req.user, error: null });
+});
+
+app.delete("/users/me/token", authenticateUser, (req, res) => {
+    req.user
+        .removeToken(req.token)
+        .then(() => res.send({ data: {}, error: null }))
+        .catch(err => res.status(400).send({ data: {}, error: err }))
 });
 
 app.listen(process.env.PORT, () => {

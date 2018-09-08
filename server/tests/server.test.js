@@ -296,7 +296,8 @@ describe("Logging in", () => {
                         const { token } = user.tokens[0];
                         expect(token).toBe(res.headers["x-auth"]);
                     })
-                    .then(() => done());
+                    .then(() => done())
+                    .catch(err => done(err));
             });
 
     });
