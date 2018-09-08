@@ -71,6 +71,28 @@ UserSchema.statics.findByToken = function(token) {
     return decodedUser;
 }
 
+// finds user by email
+UserSchema.statics.findByCredentials = function(email, password) {
+    const User = this;
+    const rejectionMsg = "User not found!";
+    return User.findOne({ email })
+        .then(foundUser => {
+            if(!foundUser) {
+                return Promise.reject(rejectionMsg);
+            }
+            return bcrypt
+                .compare(password.toString(), foundUser.password)
+                .then(isPasswordCorrect => {
+                    if(!isPasswordCorrect) {
+                        return Promise.reject(rejectionMsg);
+                    }
+        
+                    return foundUser;
+                });
+        })
+        .catch(() => rejectionMsg );
+}
+
 UserSchema.pre("save", function(next) {
     const user = this;
     const shouldHashPassword = user.isModified("password");

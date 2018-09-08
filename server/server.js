@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const { ObjectID } = require("mongodb");
+const bcrypt = require("bcryptjs");
 const _ = require("lodash");
 const { authenticateUser } = require("./middleware/authenticateUser");
 
@@ -157,6 +158,16 @@ app.post("/users",(req,res) => {
         })
         .then(token => res.header("x-auth",token).send({ data: user, error: null }))
         .catch(err => res.status(400).send({ data: {}, error: err }));
+});
+
+app.post("/users/login", (req,res) => {
+    const { email, password } = req.body;
+    User.findByCredentials(email, password)
+        .then(user => {
+            user.generateAuthToken()
+             .then(token => res.header("x-auth",token).send({ data: user, error: null }))
+        })
+        .catch(err => res.status(400).send({ data: {}, error: err })); 
 });
 
 app.get("/users/me", authenticateUser, (req,res) => {
