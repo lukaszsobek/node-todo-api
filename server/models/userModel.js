@@ -49,7 +49,6 @@ UserSchema.methods.generateAuthToken = function () {
         access
     }, salt).toString();
 
-    // ↓ workaround, as push is causing problems with some versions of mongo
     user.tokens.push({ access, token });
   
     return user.save().then(() => token);

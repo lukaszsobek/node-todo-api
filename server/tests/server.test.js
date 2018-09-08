@@ -311,4 +311,40 @@ describe("Logging in", () => {
             .end(done);
 
     });
-})
+});
+
+describe("Logging out", () => {
+    it("removes auth token when logged in", done => {
+        const testToken = sampleUsers[0].tokens[0].token;
+        request(app)
+            .delete("/users/me/token")
+            .set("x-auth", testToken)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.error).toBe(null);
+                expect(res.header).not.toHaveProperty("x-auth");
+            })
+            .end((err, res) => {
+                if(err) {
+                    return done(err);
+                }
+
+                User.findByToken(testToken)
+                    .then(foundToken => {
+                        expect(foundToken).toBe(null);
+                        done();
+                    })
+                    .catch(done);
+            });
+
+    });
+    it("throws error when not logged in", done => {
+        request(app)
+            .delete("/users/me/token")
+            .expect(401)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null);
+            })
+            .end(done);
+    });
+});
