@@ -4,6 +4,7 @@ const { ObjectID } = require("mongodb");
 
 const { app } = require("../server");
 const { Todo } = require("../models/todoModel");
+const { User } = require("../models/userModel");
 
 const {
     sampleTodos, seedTodoCollection,
@@ -275,3 +276,38 @@ describe("Creating users", () => {
         });
     });
 });
+
+describe("Logging in", () => {
+    it("works returning an auth token", done => {
+        request(app)
+            .post("/users/login")
+            .send(sampleUsers[1])
+            .expect(200)
+            .expect(res => {
+                expect(res.headers).toHaveProperty("x-auth");
+            })
+            .end((err, res) => {
+                if(err) {
+                    return done(err);
+                }
+
+                User.findById(sampleUsers[1]._id)
+                    .then(user => {
+                        const { token } = user.tokens[0];
+                        expect(token).toBe(res.headers["x-auth"]);
+                    })
+                    .then(() => done());
+            });
+
+    });
+    it("fails with wrong credentials", done => {
+        request(app)
+            .post("/users/login")
+            .expect(400)
+            .expect(res => {
+                expect(res.body.data.error).not.toBe(null);
+            })
+            .end(done);
+
+    });
+})

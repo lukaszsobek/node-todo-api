@@ -167,7 +167,7 @@ app.post("/users/login", (req,res) => {
             user.generateAuthToken()
              .then(token => res.header("x-auth",token).send({ data: user, error: null }))
         })
-        .catch(err => res.status(400).send({ data: {}, error: err })); 
+        .catch(err => res.status(400).send({ data: {}, error: "No such user" })); 
 });
 
 app.get("/users/me", authenticateUser, (req,res) => {
