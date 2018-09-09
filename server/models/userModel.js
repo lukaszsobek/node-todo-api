@@ -3,8 +3,6 @@ const validator = require("validator");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-const salt = "jkljkljlkjkl";
-
 const UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -47,7 +45,7 @@ UserSchema.methods.generateAuthToken = function () {
     const token = jwt.sign({
         _id: user._id.toHexString(),
         access
-    }, salt).toString();
+    }, process.env.JWT_SECRET).toString();
 
     user.tokens.push({ access, token });
   
@@ -67,7 +65,7 @@ UserSchema.methods.removeToken = function(token) {
 // finds user by token
 UserSchema.statics.findByToken = function(token) {
     const User = this;
-    const decodedUser = jwt.verify(token, salt, (err, decoded) => {
+    const decodedUser = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return Promise.reject("Token error");
         }
@@ -124,4 +122,4 @@ UserSchema.pre("save", function(next) {
 
 const User = mongoose.model("UserModel", UserSchema);
 
-module.exports = { User, salt }
+module.exports = { User }

@@ -1,3 +1,4 @@
 node_modules
 workbench
+server/config/config.json
 .env

@@ -2,13 +2,13 @@ const { ObjectID } = require("mongodb");
 const jwt = require("jsonwebtoken");
 
 const { Todo } = require("../models/todoModel");
-const { User, salt } = require("../models/userModel");
+const { User } = require("../models/userModel");
 
 const sampleUser1ID = new ObjectID();
 const sampleUser1Token = jwt.sign({
     _id: sampleUser1ID,
     access: "auth"
-}, salt).toString();
+}, process.env.JWT_SECRET).toString();
 const sampleUser2ID = new ObjectID();
 
 const sampleUsers = [{

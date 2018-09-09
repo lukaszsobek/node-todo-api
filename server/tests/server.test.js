@@ -262,28 +262,6 @@ describe("POST /todos", () => {
             .expect(400)
             .end(done);
     });
-
-    // xit("creates a new todo", done => {
-    //     const text = "Testing the todo creation";
-    //     request(app)
-    //         .post("/todos")
-    //         .send({text})
-    //         .expect(200)
-    //         .expect(res => {
-    //             expect(res.body.text).toBe(text);
-    //         })
-    //         .end((err, res) => {
-    //             if(err) {
-    //                 return done(err);
-    //             }
-
-    //             Todo.findOneAndUpdate((todos) => {
-    //                 expect(todos.length).toBe(1);
-    //                 expect(todos[0].text).toBe(text);
-    //                 done();
-    //             }).catch(done);
-    //         });
-    // });
 });
 
 describe("GET /users/me", () => {
