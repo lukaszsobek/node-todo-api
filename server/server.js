@@ -19,7 +19,7 @@ app.get("/", (req,res) => {
 });
 
 app.get("/todos", authenticateUser, (req,res) => {
-    Todo.find({
+     Todo.find({
         _creatorId: req.user._id
     })
         .then(todos => {
@@ -57,7 +57,7 @@ app.post("/todos", authenticateUser, (req,res) => {
         });
 });
 
-app.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", authenticateUser, (req, res) => {
     const todoID = req.params.id || "";
 
     if(!ObjectID.isValid(todoID)) {
@@ -67,7 +67,10 @@ app.delete("/todos/:id", (req, res) => {
         });
     }
 
-    Todo.findByIdAndRemove(todoID)
+    Todo.findOneAndRemove({
+        _id: new ObjectID(todoID),
+        _creatorId: req.user._id
+    })
         .then(todo => {
 
             if (!todo) {

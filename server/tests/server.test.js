@@ -68,28 +68,55 @@ describe("Getting todos", () => {
 });
 
 describe("Deleting todos", () => {
-    it("Throws error on invalid id", done => {
-        const id = "test";
-        
+    const token = sampleUsers[0].tokens[0].token;
+
+    it("is not possible without logging in", done => {
+        const id = new ObjectID().toHexString();
         request(app)
             .delete(`/todos/${id}`)
-            .expect(404)
+            .expect(401)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null)
+            })
             .end(done);
     });
 
-    it("Throws error on non-existing id", done => {
+    it("throws error on invalid id", done => {
+        const id = "test";
+        request(app)
+            .delete(`/todos/${id}`)
+            .set("x-auth", token)
+            .expect(404)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null);
+            })
+            .end(done);
+    });
+
+    it("throws error on non-existing id", done => {
         const id = new ObjectID().toHexString();
 
         request(app)
             .delete(`/todos/${id}`)
+            .set("x-auth", token)
             .expect(404)
             .end(done);
     });
 
-    it("Deletes existing note", done => {
+    it("cannot delete note of other user", done => {
+        const noteId = sampleTodos[1]._id;
+        request(app)
+            .delete(`/todos/${noteId}`)
+            .set("x-auth", token)
+            .expect(404)
+            .end(done);
+    });
+
+    it("deletes existing note", done => {
         const id = sampleTodos[0]._id.toHexString();
         request(app)
             .delete(`/todos/${id}`)
+            .set("x-auth", token)
             .expect(200)
             .expect(res => {
                 expect(res.body.data._id).toBe(id);
