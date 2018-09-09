@@ -15,13 +15,25 @@ beforeEach(seedUserCollection);
 beforeEach(seedTodoCollection);
 
 describe("Getting todos", () => {
+
+    it("is not possible without logging in", done => {
+        request(app)
+            .get("/todos")
+            .expect(401)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null);
+            })
+            .end(done);
+    });
+
     it("/todos route gets all todos", done => {
         request(app)
             .get("/todos")
+            .set("x-auth", sampleUsers[0].tokens[0].token)
             .expect(200)
             .expect(res => {
                 expect(res.body.error).toBe(null);
-                expect(res.body.data.length).toBe(2);
+                expect(res.body.data.length).toBe(1);
             })
             .end(done);
     });

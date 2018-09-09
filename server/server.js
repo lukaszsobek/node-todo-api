@@ -18,8 +18,10 @@ app.get("/", (req,res) => {
     res.send("Hello, welcome to the Todo api");
 });
 
-app.get("/todos", (req,res) => {
-    Todo.find()
+app.get("/todos", authenticateUser, (req,res) => {
+    Todo.find({
+        _creatorId: req.user._id
+    })
         .then(todos => {
             res.send({
                 data: todos,
@@ -38,7 +40,7 @@ app.get("/todos", (req,res) => {
 app.post("/todos", authenticateUser, (req,res) => {
     const todo = new Todo({
         text: req.body.text,
-        _creatorId: req.body._creatorId
+        _creatorId: req.user._id
     });
     todo.save()
         .then(doc => {
