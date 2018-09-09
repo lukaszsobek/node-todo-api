@@ -91,7 +91,7 @@ app.delete("/todos/:id", authenticateUser, (req, res) => {
         }))
 });
 
-app.patch("/todos/:id", (req, res) => {
+app.patch("/todos/:id", authenticateUser, (req, res) => {
     const todoID = req.params.id || "";
     if(!ObjectID.isValid(todoID)) {
         return res.status(404).send();
@@ -108,7 +108,10 @@ app.patch("/todos/:id", (req, res) => {
         ? Date.now()
         : 0;
     
-    Todo.findByIdAndUpdate(todoID, {$set: updatedTodo}, {new: true})
+    Todo.findOneAndUpdate({
+        _id: new ObjectID(todoID),
+        _creatorId: req.user._id
+    }, {$set: updatedTodo}, {new: true})
         .then(todo => {
             if(!todo) {
                 return res.status(404).send({

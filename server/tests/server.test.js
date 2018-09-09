@@ -14,9 +14,9 @@ const {
 beforeEach(seedUserCollection);
 beforeEach(seedTodoCollection);
 
-describe("Getting todos", () => {
+describe("GET /todos", () => {
 
-    it("is not possible without logging in", done => {
+    it("is not accessible without logging in", done => {
         request(app)
             .get("/todos")
             .expect(401)
@@ -26,7 +26,7 @@ describe("Getting todos", () => {
             .end(done);
     });
 
-    it("/todos route gets all todos", done => {
+    it("gets all todos for a user", done => {
         request(app)
             .get("/todos")
             .set("x-auth", sampleUsers[0].tokens[0].token)
@@ -37,8 +37,11 @@ describe("Getting todos", () => {
             })
             .end(done);
     });
+});
 
-    it("todos/:id gets a specific id",done => {
+describe("GET /todos/:id", () => {
+
+    it("gets a specific todo",done => {
         const _id = sampleTodos[0]._id.toHexString();
         request(app)
             .get(`/todos/${_id}`)
@@ -51,7 +54,7 @@ describe("Getting todos", () => {
             .end(done);
     });
 
-    it("non-existant :id returns an error status", done => {
+    it("returns an error for non-existing todo", done => {
         const _id = new ObjectID().toHexString();      
         request(app)
             .get(`/todos/${_id}`)
@@ -59,7 +62,7 @@ describe("Getting todos", () => {
             .end(done);
     });
 
-    it("invalid :id returns an error status", done => {
+    it("returns an error for wrong :id formatting", done => {
         request(app)
             .get("/todos/sample")
             .expect(404)
@@ -67,10 +70,10 @@ describe("Getting todos", () => {
     });
 });
 
-describe("Deleting todos", () => {
+describe("DELETE /todos/:id", () => {
     const token = sampleUsers[0].tokens[0].token;
 
-    it("is not possible without logging in", done => {
+    it("is not accessible without logging in", done => {
         const id = new ObjectID().toHexString();
         request(app)
             .delete(`/todos/${id}`)
@@ -137,12 +140,24 @@ describe("Deleting todos", () => {
     });
 });
 
-describe("Patching a todo", () => {
+describe("PATCH /todos/:id", () => {
+    const token = sampleUsers[0].tokens[0].token;
+
+    it("is not possible without authorization", done => {
+        const id = new ObjectID().toHexString();
+
+        request(app)
+            .patch(`/todos/${id}`)
+            .expect(401)
+            .end(done);
+    });
+
     it("Throws error on invalid id", done => {
         const id = "test";
         
         request(app)
             .delete(`/todos/${id}`)
+            .set("x-auth", token)
             .expect(404)
             .end(done);
     });
@@ -152,6 +167,16 @@ describe("Patching a todo", () => {
 
         request(app)
             .delete(`/todos/${id}`)
+            .set("x-auth", token)
+            .expect(404)
+            .end(done);
+    });
+
+    it("is not possible on another user's todo", done => {
+        const id = sampleTodos[1]._id.toHexString();
+        request(app)
+            .patch(`/todos/${id}`)
+            .set("x-auth", token)
             .expect(404)
             .end(done);
     });
@@ -162,6 +187,7 @@ describe("Patching a todo", () => {
         const text = "New text from test"
         request(app)
             .patch(`/todos/${id}`)
+            .set("x-auth", token)
             .send({ isCompleted, text })
             .expect(200)
             .expect(({ body }) => {
@@ -177,6 +203,7 @@ describe("Patching a todo", () => {
         const isCompleted = false;
         request(app)
             .patch(`/todos/${id}`)
+            .set("x-auth", token)
             .send({ isCompleted })
             .expect(200)
             .expect(({ body }) => {
@@ -187,7 +214,7 @@ describe("Patching a todo", () => {
     })
 });
 
-describe("Posting todos", () => {
+describe("POST /todos", () => {
 
     it("is not possible w/o logging in", done => {
         request(app)
@@ -224,8 +251,6 @@ describe("Posting todos", () => {
             .end(done);
     });
 
-
-
     // xit("creates a new todo", done => {
     //     const text = "Testing the todo creation";
     //     request(app)
@@ -249,7 +274,7 @@ describe("Posting todos", () => {
     // });
 });
 
-describe("Getting user data from /users/me", () => {
+describe("GET /users/me", () => {
     it("works when authenticated", done => {
         request(app)
             .get("/users/me")
@@ -276,7 +301,7 @@ describe("Getting user data from /users/me", () => {
     });
 });
 
-describe("Creating users", () => {
+describe("POST /users", () => {
 
     const validEmail = "c@c.com";
     const invalidEmail = "aaaa";
@@ -342,7 +367,7 @@ describe("Creating users", () => {
     });
 });
 
-describe("Logging in", () => {
+describe("POST /users/login", () => {
     it("works returning an auth token", done => {
         request(app)
             .post("/users/login")
@@ -378,7 +403,7 @@ describe("Logging in", () => {
     });
 });
 
-describe("Logging out", () => {
+describe("DELETE /users/me/token (Logging out)", () => {
     it("removes auth token when logged in", done => {
         const testToken = sampleUsers[0].tokens[0].token;
         request(app)
