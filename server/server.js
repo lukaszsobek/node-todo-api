@@ -35,9 +35,10 @@ app.get("/todos", (req,res) => {
     
 });
 
-app.post("/todos", (req,res) => {
+app.post("/todos", authenticateUser, (req,res) => {
     const todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creatorId: req.body._creatorId
     });
     todo.save()
         .then(doc => {

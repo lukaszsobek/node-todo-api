@@ -150,11 +150,37 @@ describe("Patching a todo", () => {
 
 describe("Posting todos", () => {
 
-    it("invalid data doesn't create new todo",done => {
-        let text = "    ";
+    it("is not possible w/o logging in", done => {
         request(app)
             .post("/todos")
-            .send({text})
+            .expect(401)
+            .expect(res => {
+                expect(res.body.error).not.toBe(null);
+            })
+            .end(done);
+    });
+
+    it("works when logged in and todo is correct", done => {
+        const text = "This is a correct todo";
+        const _creatorId = sampleUsers[0]._id;
+        request(app)
+            .post("/todos")
+            .set("x-auth", sampleUsers[0].tokens[0].token)
+            .send({ text, _creatorId })
+            .expect(200)
+            .expect(res => {
+                expect(res.body.error).toBe(null);
+            })
+            .end(done);
+    })
+
+    it("fails on invalid data",done => {
+        let text = "    ";
+        const _creatorId = sampleUsers[0]._id;
+        request(app)
+            .post("/todos")
+            .set("x-auth", sampleUsers[0].tokens[0].token)
+            .send({ text, _creatorId })
             .expect(400)
             .end(done);
     });
