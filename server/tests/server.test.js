@@ -40,24 +40,22 @@ describe("GET /todos", () => {
 });
 
 describe("GET /todos/:id", () => {
+    const token = sampleUsers[0].tokens[0].token;
 
-    it("gets a specific todo",done => {
-        const _id = sampleTodos[0]._id.toHexString();
+    it("does not show a different user's todo", done => {
+        const _id = sampleTodos[1]._id;
         request(app)
             .get(`/todos/${_id}`)
-            .expect(200)
-            .expect(res => {
-                // ↓ comparing ObjectId with a string for convenience sake
-                expect(res.body.data._id).toBe(_id); 
-                expect(res.body.data.text).toBe(sampleTodos[0].text);
-            })
-            .end(done);
-    });
+            .set("x-auth", token)
+            .expect(404)
+            .end(done);        
+    })
 
     it("returns an error for non-existing todo", done => {
         const _id = new ObjectID().toHexString();      
         request(app)
             .get(`/todos/${_id}`)
+            .set("x-auth", token)
             .expect(404)
             .end(done);
     });
@@ -65,7 +63,21 @@ describe("GET /todos/:id", () => {
     it("returns an error for wrong :id formatting", done => {
         request(app)
             .get("/todos/sample")
+            .set("x-auth", token)
             .expect(404)
+            .end(done);
+    });
+
+    it("gets a specific todo",done => {
+        const _id = sampleTodos[0]._id.toHexString();
+        request(app)
+            .get(`/todos/${_id}`)
+            .set("x-auth", token)
+            .expect(200)
+            .expect(res => {
+                expect(res.body.data._id).toBe(_id); 
+                expect(res.body.data.text).toBe(sampleTodos[0].text);
+            })
             .end(done);
     });
 });

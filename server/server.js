@@ -131,12 +131,15 @@ app.patch("/todos/:id", authenticateUser, (req, res) => {
         }));
 });
 
-app.get("/todos/:id", (req, res) => {
+app.get("/todos/:id", authenticateUser, (req, res) => {
     const todoID = req.params.id || "";
     if(!ObjectID.isValid(todoID)) {
         return res.status(404).send();
     }
-    Todo.findById(todoID).then(todo => {
+    Todo.findOne({
+        _id: new ObjectID(todoID),
+        _creatorId: req.user._id
+    }).then(todo => {
         if(!todo) {
             return res.status(404).send({
                 data: {},
