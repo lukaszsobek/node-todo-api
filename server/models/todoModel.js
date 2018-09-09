@@ -21,6 +21,12 @@ const TodoSchema = new mongoose.Schema({
     }
 })
 
+TodoSchema.methods.toJSON = function() {
+    const todo = this;
+    const { text, isCompleted, completedDate } = todo.toObject();
+    return { text, isCompleted, completedDate };
+}
+
 const Todo = mongoose.model("Todo", TodoSchema);
 
 module.exports = { Todo }
